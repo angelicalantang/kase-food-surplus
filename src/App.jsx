@@ -423,6 +423,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
+
       <Footer />
     </div>
   );
