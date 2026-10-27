@@ -11,7 +11,7 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
     // Simulasi jeda verifikasi pembayaran bank/gateway (1.5 detik)
     setTimeout(() => {
       setIsVerifying(false);
-      onSuccess();
+      onSuccess(); // Panggil onSuccess() HANYA SETELAH tombol konfirmasi diklik
     }, 1500);
   };
 
@@ -57,7 +57,6 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
           {paymentMethod === 'qris' && (
             <div className="space-y-4">
               <div className="bg-white p-4 border-2 border-dashed border-gray-200 rounded-3xl inline-block shadow-sm">
-                {/* Mockup QR Code */}
                 <div className="w-48 h-48 bg-gray-900 rounded-2xl flex flex-col items-center justify-center text-white p-4 relative overflow-hidden group">
                   <QrCode size={96} className="text-emerald-400 animate-pulse" />
                   <span className="text-[10px] font-bold mt-2 text-gray-300">KASE SECURE QRIS</span>
@@ -104,7 +103,7 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
 
         </div>
 
-        {/* Footer Tombol Konfirmasi */}
+        {/* Footer Tombol Konfirmasi Pembayaran (Wajib ada sebelum sukses) */}
         <div className="p-5 border-t border-gray-100 bg-gray-50/50">
           <button
             onClick={handleVerifyPayment}
