@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, QrCode, Wallet, Banknote, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
+import { X, Wallet, Banknote, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
 
 export default function PaymentInstructionModal({ food, portions, paymentMethod, deliveryMethod, onClose, onSuccess }) {
   const [isVerifying, setIsVerifying] = useState(false);
@@ -8,10 +8,10 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
 
   const handleVerifyPayment = () => {
     setIsVerifying(true);
-    // Simulasi jeda verifikasi pembayaran bank/gateway (1.5 detik)
+    // Simulasi jeda verifikasi pembayaran (1.5 detik)
     setTimeout(() => {
       setIsVerifying(false);
-      onSuccess(); // Panggil onSuccess() HANYA SETELAH tombol konfirmasi diklik
+      onSuccess(); // Memicu transisi ke layar sukses setelah tombol diklik
     }, 1500);
   };
 
@@ -21,10 +21,10 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
       >
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 shrink-0">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Selesaikan Pembayaran</span>
             <h2 className="text-base font-black text-gray-900">
@@ -35,43 +35,52 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
           </div>
           <button 
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-all cursor-pointer"
+            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition-all cursor-pointer"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Body Konten Instruksi */}
-        <div className="p-6 space-y-6 overflow-y-auto text-center">
+        <div className="p-5 space-y-4 overflow-y-auto text-center flex-1">
           
           {/* Total Tagihan */}
-          <div className="bg-[#F4F5F8] p-4 rounded-2xl">
+          <div className="bg-[#F4F5F8] p-3 rounded-2xl">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Tagihan Rescue</span>
-            <h3 className="text-2xl font-black text-gray-900 mt-0.5">Rp {totalPrice.toLocaleString('id-ID')}</h3>
-            <span className="text-[11px] text-emerald-600 font-semibold block mt-1">
+            <h3 className="text-xl font-black text-gray-900 mt-0.5">Rp {totalPrice.toLocaleString('id-ID')}</h3>
+            <span className="text-[11px] text-emerald-600 font-semibold block mt-0.5">
               {deliveryMethod === 'pickup' ? '📦 Ambil Sendiri ke Toko' : '🏍️ Diantar via Kurir Instan'}
             </span>
           </div>
 
           {/* Konten Berdasarkan Metode Pembayaran */}
           {paymentMethod === 'qris' && (
-            <div className="space-y-4">
-              <div className="bg-white p-4 border-2 border-dashed border-gray-200 rounded-3xl inline-block shadow-sm">
-                <div className="w-48 h-48 bg-gray-900 rounded-2xl flex flex-col items-center justify-center text-white p-4 relative overflow-hidden group">
-                  <QrCode size={96} className="text-emerald-400 animate-pulse" />
-                  <span className="text-[10px] font-bold mt-2 text-gray-300">KASE SECURE QRIS</span>
+            <div className="space-y-3">
+              <div className="bg-white p-3 border-2 border-dashed border-emerald-300 rounded-3xl inline-block shadow-sm bg-emerald-50/20">
+                <img 
+                  src="/qris.png" 
+                  alt="QRIS KASE Rescue" 
+                  className="w-40 h-40 object-contain rounded-2xl mx-auto shadow-sm"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div style={{ display: 'none' }} className="w-40 h-40 bg-gray-900 rounded-2xl flex-col items-center justify-center text-white p-3 mx-auto text-center">
+                  <span className="text-xs text-amber-400 font-bold mb-1">qris.png Belum Ada</span>
+                  <span className="text-[10px] text-gray-300">Masukkan file qris.png ke folder public.</span>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 px-4">
-                Buka aplikasi m-banking atau e-wallet (BCA, GoPay, OVO, DANA) lalu scan QR code di atas.
+              <p className="text-xs text-gray-500 px-2">
+                Buka aplikasi m-banking atau e-wallet lalu scan QR code di atas.
               </p>
             </div>
           )}
 
           {paymentMethod === 'ewallet' && (
-            <div className="space-y-4 py-4">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-                <Wallet size={32} />
+            <div className="space-y-3 py-2">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                <Wallet size={28} />
               </div>
               <div className="space-y-1">
                 <h4 className="text-sm font-bold text-gray-900">Hubungkan ke Aplikasi E-Wallet</h4>
@@ -83,10 +92,10 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
           )}
 
           {paymentMethod === 'cash' && (
-            <div className="space-y-4 py-2 text-left bg-amber-50/60 border border-amber-200/60 p-4 rounded-2xl">
+            <div className="space-y-3 py-1 text-left bg-amber-50/60 border border-amber-200/60 p-3 rounded-2xl">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  <Banknote size={22} />
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <Banknote size={20} />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-amber-900">Bayar Tunai di Kasir Toko</h4>
@@ -96,15 +105,15 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
             </div>
           )}
 
-          <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400">
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 pt-1">
             <ShieldCheck size={14} className="text-emerald-500" />
             <span>Transaksi Aman & Terverifikasi KASE Rescue</span>
           </div>
 
         </div>
 
-        {/* Footer Tombol Konfirmasi Pembayaran (Wajib ada sebelum sukses) */}
-        <div className="p-5 border-t border-gray-100 bg-gray-50/50">
+        {/* Footer Tombol Konfirmasi (Sticky di bawah, dijamin nampak) */}
+        <div className="p-4 border-t border-gray-100 bg-gray-50/80 backdrop-blur shrink-0">
           <button
             onClick={handleVerifyPayment}
             disabled={isVerifying}
