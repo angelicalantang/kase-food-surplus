@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Star, ChevronRight } from 'lucide-react';
+import { Heart, Star, ChevronRight, MapPin } from 'lucide-react';
 
-export default function FoodCard({ food, onSelect, onToggleSave, isSaved }) {
+export default function FoodCard({ food, onSelect, onToggleSave, isSaved, onOpenMap }) {
   const discountPct = Math.round(((food.originalPrice - food.kasePrice) / food.originalPrice) * 100);
 
   return (
@@ -25,16 +25,34 @@ export default function FoodCard({ food, onSelect, onToggleSave, isSaved }) {
             {discountPct}% OFF
           </span>
 
-          {/* Save Heart Button */}
-          <button 
-            onClick={onToggleSave}
-            className="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-md text-gray-600 hover:text-kaseRed hover:bg-white transition-all shadow-sm"
-          >
-            <Heart 
-              size={16} 
-              className={isSaved ? "fill-kaseRed text-kaseRed" : ""} 
-            />
-          </button>
+          {/* Action Buttons Top Right (Save & Map) */}
+          <div className="absolute top-3 right-3 flex items-center gap-1.5">
+            {/* Tombol Buka Peta untuk Resto ini */}
+            {onOpenMap && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenMap(food);
+                }}
+                className="p-2 rounded-full bg-white/80 backdrop-blur-md text-gray-600 hover:text-amber-600 hover:bg-white transition-all shadow-sm"
+                title="Lihat Lokasi di Peta"
+              >
+                <MapPin size={16} />
+              </button>
+            )}
+
+            {/* Save Heart Button */}
+            <button 
+              onClick={onToggleSave}
+              className="p-2 rounded-full bg-white/80 backdrop-blur-md text-gray-600 hover:text-kaseRed hover:bg-white transition-all shadow-sm"
+              title="Simpan Makanan"
+            >
+              <Heart 
+                size={16} 
+                className={isSaved ? "fill-kaseRed text-kaseRed" : ""} 
+              />
+            </button>
+          </div>
 
           {/* Portions Remaining Badge */}
           <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-gray-800 flex items-center gap-1">

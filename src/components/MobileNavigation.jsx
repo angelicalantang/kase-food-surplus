@@ -1,33 +1,78 @@
 import React from 'react';
-import { Home, Compass, PieChart, Store, User } from 'lucide-react';
+import { Home, Compass, User, Store, ShoppingBag } from 'lucide-react';
 
-export default function MobileNavigation({ activeTab, setActiveTab }) {
-  const navItems = [
-    { id: 'landing', icon: Home, label: 'Beranda' },
-    { id: 'discover', icon: Compass, label: 'Temukan' },
-    { id: 'dashboard', icon: PieChart, label: 'Dampak' },
-    { id: 'provider', icon: Store, label: 'Partner' },
-    { id: 'profile', icon: User, label: 'Profil' }
-  ];
+export default function MobileNavigation({ activeTab, setActiveTab, currentUser }) {
+  const isMerchant = currentUser?.role === 'merchant';
 
+  if (isMerchant) {
+    // Navigasi bawah khusus Merchant
+    return (
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 px-6 py-3 z-30 flex items-center justify-around shadow-lg">
+        <button
+          onClick={() => setActiveTab('provider')}
+          className={`flex flex-col items-center gap-1 transition-all ${
+            activeTab === 'provider' ? 'text-amber-600 font-bold' : 'text-gray-400 font-medium'
+          }`}
+        >
+          <Store size={20} />
+          <span className="text-[10px]">Toko Saya</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`flex flex-col items-center gap-1 transition-all ${
+            activeTab === 'profile' ? 'text-amber-600 font-bold' : 'text-gray-400 font-medium'
+          }`}
+        >
+          <User size={20} />
+          <span className="text-[10px]">Profil</span>
+        </button>
+      </div>
+    );
+  }
+
+  // Navigasi bawah khusus Pembeli / User
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-lg border-t border-black/[0.06] px-6 py-2.5 flex items-center justify-between">
-      {navItems.map(nav => {
-        const Icon = nav.icon;
-        const isActive = activeTab === nav.id;
-        return (
-          <button
-            key={nav.id}
-            onClick={() => setActiveTab(nav.id)}
-            className={`flex flex-col items-center gap-1 text-[11px] font-medium transition-all ${
-              isActive ? 'text-kaseGreen font-bold scale-105' : 'text-gray-400'
-            }`}
-          >
-            <Icon size={20} />
-            <span>{nav.label}</span>
-          </button>
-        );
-      })}
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 px-6 py-3 z-30 flex items-center justify-around shadow-lg">
+      <button
+        onClick={() => setActiveTab('landing')}
+        className={`flex flex-col items-center gap-1 transition-all ${
+          activeTab === 'landing' ? 'text-emerald-600 font-bold' : 'text-gray-400 font-medium'
+        }`}
+      >
+        <Home size={20} />
+        <span className="text-[10px]">Beranda</span>
+      </button>
+
+      <button
+        onClick={() => setActiveTab('discover')}
+        className={`flex flex-col items-center gap-1 transition-all ${
+          activeTab === 'discover' ? 'text-emerald-600 font-bold' : 'text-gray-400 font-medium'
+        }`}
+      >
+        <Compass size={20} />
+        <span className="text-[10px]">Jelajahi</span>
+      </button>
+
+      <button
+        onClick={() => setActiveTab('orders')}
+        className={`flex flex-col items-center gap-1 transition-all ${
+          activeTab === 'orders' ? 'text-emerald-600 font-bold' : 'text-gray-400 font-medium'
+        }`}
+      >
+        <ShoppingBag size={20} />
+        <span className="text-[10px]">Pesanan</span>
+      </button>
+
+      <button
+        onClick={() => setActiveTab('profile')}
+        className={`flex flex-col items-center gap-1 transition-all ${
+          activeTab === 'profile' ? 'text-emerald-600 font-bold' : 'text-gray-400 font-medium'
+        }`}
+      >
+        <User size={20} />
+        <span className="text-[10px]">Profil</span>
+      </button>
     </div>
   );
 }

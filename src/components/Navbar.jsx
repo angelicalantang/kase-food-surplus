@@ -1,72 +1,114 @@
 import React from 'react';
-import { Search, PlusCircle } from 'lucide-react';
-import Logo from './Logo';
+import { Leaf, LogOut, Store, Compass, Home, ShoppingBag } from 'lucide-react';
 
-export default function Navbar({ activeTab, setActiveTab, onOpenListModal, savedCount }) {
-  const navLinks = [
-    { id: 'landing', label: 'Beranda' },
-    { id: 'discover', label: 'Temukan Makanan' },
-    { id: 'how', label: 'Cara Kerja' },
-    { id: 'impact', label: 'Dampak Eco' },
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'provider', label: 'Partner View' }
-  ];
+export default function Navbar({ 
+  activeTab, 
+  setActiveTab, 
+  setIsListModalOpen, 
+  savedCount, 
+  currentUser, 
+  onLogout 
+}) {
+  const isMerchant = currentUser?.role === 'merchant';
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F4F5F8]/80 backdrop-blur-md border-b border-black/[0.04] transition-all">
+    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-black/[0.04]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <Logo onClick={() => setActiveTab('landing')} />
+        
+        {/* Brand Logo */}
+        <div 
+          onClick={() => setActiveTab(isMerchant ? 'provider' : 'landing')}
+          className="flex items-center gap-2.5 cursor-pointer group"
+        >
+          <div className="w-10 h-10 bg-[#1E293B] text-white rounded-2xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+            <Leaf size={20} className="text-emerald-400" />
+          </div>
+          <div>
+            <span className="text-xl font-black tracking-tight text-[#1E293B]">KASE</span>
+            <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-widest">Food Rescue</span>
+          </div>
+        </div>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 bg-white/70 p-1.5 rounded-full border border-black/[0.05] shadow-sm">
-          {navLinks.map(link => (
+        {/* Desktop Menu Links (Clean & Minimalist) */}
+        <nav className="hidden md:flex items-center gap-1 bg-[#F4F5F8] p-1.5 rounded-2xl">
+          {isMerchant ? (
+            // Menu khusus Merchant
             <button
-              key={link.id}
-              onClick={() => setActiveTab(link.id)}
-              className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
-                activeTab === link.id 
-                  ? 'bg-kaseDark text-white shadow-sm' 
-                  : 'text-gray-600 hover:text-kaseDark hover:bg-gray-100/50'
+              onClick={() => setActiveTab('provider')}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                activeTab === 'provider' ? 'bg-white text-[#1E293B] shadow-sm' : 'text-gray-500 hover:text-gray-900'
               }`}
             >
-              {link.label}
+              <Store size={15} className="text-amber-500" />
+              <span>Kelola Toko</span>
             </button>
-          ))}
+          ) : (
+            // Menu khusus Pembeli
+            <>
+              <button
+                onClick={() => setActiveTab('landing')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'landing' ? 'bg-white text-[#1E293B] shadow-sm' : 'text-gray-500 hover:text-gray-900'
+                }`}
+              >
+                <Home size={14} />
+                <span>Beranda</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('discover')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'discover' ? 'bg-white text-[#1E293B] shadow-sm' : 'text-gray-500 hover:text-gray-900'
+                }`}
+              >
+                <Compass size={14} />
+                <span>Jelajahi</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('orders')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'orders' ? 'bg-white text-[#1E293B] shadow-sm' : 'text-gray-500 hover:text-gray-900'
+                }`}
+              >
+                <ShoppingBag size={14} />
+                <span>Pesanan Saya</span>
+              </button>
+            </>
+          )}
         </nav>
 
-        {/* Right Actions */}
+        {/* Action Buttons (User Profile & Logout) */}
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setActiveTab('discover')}
-            className="p-2.5 rounded-full bg-white text-gray-700 hover:text-kaseDark hover:bg-gray-100 border border-black/[0.05] transition-all"
-            title="Search"
-          >
-            <Search size={18} />
-          </button>
-
-          <button
-            onClick={onOpenListModal}
-            className="hidden sm:flex items-center gap-2 bg-kaseDark hover:bg-gray-800 text-white text-xs font-bold px-5 py-3 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
-          >
-            <PlusCircle size={16} className="text-kaseAmber" />
-            <span>Bagikan Surplus</span>
-          </button>
-
-          {/* User Avatar */}
+          
+          {/* Profil / Info User */}
           <button 
             onClick={() => setActiveTab('profile')}
-            className="relative p-1 rounded-full border-2 border-kaseGreen/30 hover:border-kaseGreen transition-all"
+            className={`flex items-center gap-2 px-3 py-2 rounded-2xl transition-all border ${
+              activeTab === 'profile' 
+                ? 'bg-[#1E293B] text-white border-[#1E293B]' 
+                : 'bg-[#F4F5F8] hover:bg-gray-200/60 text-[#1E293B] border-transparent'
+            }`}
           >
-            <img 
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" 
-              alt="Alex Profile"
-              className="w-8 h-8 rounded-full object-cover"
-            />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-kaseRed text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-              {savedCount}
+            <div className="w-7 h-7 rounded-xl bg-emerald-500/20 flex items-center justify-center text-xs font-black text-emerald-700">
+              {currentUser?.name?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <span className="text-xs font-bold max-w-[100px] truncate hidden sm:inline">
+              {currentUser?.name}
             </span>
           </button>
+
+          {/* Tombol Logout */}
+          <button
+            onClick={onLogout}
+            title="Keluar Akun"
+            className="p-2.5 rounded-2xl bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-600 transition-all cursor-pointer"
+          >
+            <LogOut size={16} />
+          </button>
+          
         </div>
+
       </div>
     </header>
   );

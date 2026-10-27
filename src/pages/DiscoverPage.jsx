@@ -12,14 +12,16 @@ export default function DiscoverPage({
   setSearchQuery, 
   onSelectFood, 
   toggleSave, 
-  savedIds 
+  savedIds,
+  onOpenMap,
+  userLocation 
 }) {
   const categories = ['All', 'Meals', 'Bakery', 'Salads', 'Fruits', 'Drinks'];
   const sortOptions = ['Nearest', 'Lowest Price', 'Most Saved'];
 
   return (
     <div className="space-y-8 pb-16">
-      {/* Header Banner */}
+      {/* Header Banner Clean */}
       <div className="bg-gradient-to-r from-kaseDark to-gray-800 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-lg">
         <div className="absolute top-0 right-0 w-80 h-80 bg-kaseGreen/20 rounded-full blur-2xl pointer-events-none"></div>
         <div className="max-w-xl relative z-10 space-y-3">
@@ -31,7 +33,7 @@ export default function DiscoverPage({
         </div>
       </div>
 
-      {/* Search & Filter Controls */}
+      {/* Search & Filter Controls Minimalis */}
       <div className="bg-white rounded-[2rem] p-4 shadow-soft border border-black/[0.04] space-y-4">
         <div className="flex flex-col md:flex-row items-center gap-3">
           {/* Search Input */}
@@ -54,11 +56,15 @@ export default function DiscoverPage({
             )}
           </div>
 
-          {/* Location Badge */}
-          <div className="flex items-center gap-2 bg-[#F4F5F8] px-4 py-3 rounded-2xl text-xs font-semibold text-gray-700 w-full md:w-auto shrink-0">
-            <MapPin size={16} className="text-kaseRed" />
-            <span>Manado, Sulawesi Utara</span>
-          </div>
+          {/* Location Badge (Sekarang Berfungsi sebagai Tombol untuk Membuka Peta) */}
+          <button 
+            onClick={() => onOpenMap(null)}
+            className="flex items-center gap-2 bg-[#F4F5F8] hover:bg-gray-200/80 px-4 py-3 rounded-2xl text-xs font-semibold text-gray-700 w-full md:w-auto shrink-0 transition-all cursor-pointer shadow-sm group"
+            title="Klik untuk melihat peta lokasi Anda"
+          >
+            <MapPin size={16} className="text-kaseRed group-hover:scale-110 transition-transform" />
+            <span>{userLocation?.cityName || "Makassar, Sulawesi Selatan"}</span>
+          </button>
         </div>
 
         {/* Category Pills & Sort Dropdown */}
@@ -110,6 +116,7 @@ export default function DiscoverPage({
               onSelect={() => onSelectFood(food)} 
               onToggleSave={(e) => toggleSave(food.id, e)}
               isSaved={savedIds.includes(food.id)}
+              onOpenMap={onOpenMap}
             />
           ))}
         </div>
