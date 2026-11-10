@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Wallet, Banknote, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
+import { X, Wallet, Banknote, CheckCircle2, ShieldCheck, Loader2, ExternalLink } from 'lucide-react';
 
 export default function PaymentInstructionModal({ food, portions, paymentMethod, deliveryMethod, onClose, onSuccess }) {
   const [isVerifying, setIsVerifying] = useState(false);
@@ -8,10 +8,26 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
 
   const handleVerifyPayment = () => {
     setIsVerifying(true);
-    // Simulasi jeda verifikasi pembayaran (1.5 detik)
+
+    // JIKA PILIH KURIR INSTAN: Otomatis direct ke aplikasi Gojek / Grab
+    if (deliveryMethod === 'instant') {
+      setTimeout(() => {
+        setIsVerifying(false);
+        // Coba buka aplikasi Gojek di HP, jika di laptop akan fallback ke website Gojek
+        window.location.href = 'gojek://gosend'; 
+        setTimeout(() => {
+          // Fallback jika app tidak terbuka (misal di laptop)
+          window.open('https://www.gojek.com/gosend/', '_blank');
+        }, 1000);
+        onSuccess();
+      }, 1000);
+      return;
+    }
+
+    // Simulasi verifikasi standar untuk Pickup / Cash / E-Wallet
     setTimeout(() => {
       setIsVerifying(false);
-      onSuccess(); // Memicu transisi ke layar sukses setelah tombol diklik
+      onSuccess();
     }, 1500);
   };
 
@@ -41,7 +57,7 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
           </button>
         </div>
 
-        {/* Body Konten Instruksi */}
+        {/* Body Konten */}
         <div className="p-5 space-y-4 overflow-y-auto text-center flex-1">
           
           {/* Total Tagihan */}
@@ -49,30 +65,22 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Tagihan Rescue</span>
             <h3 className="text-xl font-black text-gray-900 mt-0.5">Rp {totalPrice.toLocaleString('id-ID')}</h3>
             <span className="text-[11px] text-emerald-600 font-semibold block mt-0.5">
-              {deliveryMethod === 'pickup' ? '📦 Ambil Sendiri ke Toko' : '🏍️ Diantar via Kurir Instan'}
+              {deliveryMethod === 'pickup' ? '📦 Ambil Sendiri ke Toko' : '🏍️ Diantar via Kurir Instan (Ojol)'}
             </span>
           </div>
 
-          {/* Konten Berdasarkan Metode Pembayaran */}
+          {/* QRIS - Gambar QR Code Nyata dari Online CDN */}
           {paymentMethod === 'qris' && (
             <div className="space-y-3">
-              <div className="bg-white p-3 border-2 border-dashed border-emerald-300 rounded-3xl inline-block shadow-sm bg-emerald-50/20">
+              <div className="bg-white p-3 border-2 border-dashed border-emerald-400 rounded-3xl inline-block shadow-md bg-emerald-50/20">
                 <img 
-                  src="/qris.png" 
-                  alt="QRIS KASE Rescue" 
-                  className="w-40 h-40 object-contain rounded-2xl mx-auto shadow-sm"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=KASE-FOOD-RESCUE-PAYMENT" 
+                  alt="QRIS Pembayaran KASE" 
+                  className="w-44 h-44 object-contain rounded-2xl mx-auto shadow-sm border border-gray-100"
                 />
-                <div style={{ display: 'none' }} className="w-40 h-40 bg-gray-900 rounded-2xl flex-col items-center justify-center text-white p-3 mx-auto text-center">
-                  <span className="text-xs text-amber-400 font-bold mb-1">qris.png Belum Ada</span>
-                  <span className="text-[10px] text-gray-300">Masukkan file qris.png ke folder public.</span>
-                </div>
               </div>
-              <p className="text-xs text-gray-500 px-2">
-                Buka aplikasi m-banking atau e-wallet lalu scan QR code di atas.
+              <p className="text-xs text-gray-500 px-2 font-medium">
+                Buka aplikasi m-banking atau e-wallet (BCA, GoPay, OVO, DANA) lalu scan QR Code di atas.
               </p>
             </div>
           )}
@@ -83,9 +91,9 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
                 <Wallet size={28} />
               </div>
               <div className="space-y-1">
-                <h4 className="text-sm font-bold text-gray-900">Hubungkan ke Aplikasi E-Wallet</h4>
+                <h4 className="text-sm font-bold text-gray-900">Pembayaran E-Wallet Instan</h4>
                 <p className="text-xs text-gray-500 px-4">
-                  Klik tombol konfirmasi di bawah untuk memproses pembayaran otomatis saldo e-wallet Anda.
+                  Klik tombol konfirmasi di bawah untuk simulasi pemotongan saldo e-wallet Anda.
                 </p>
               </div>
             </div>
@@ -99,20 +107,26 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-amber-900">Bayar Tunai di Kasir Toko</h4>
-                  <p className="text-[11px] text-amber-700">Tunjukkan kode pesanan saat tiba di merchant.</p>
+                  <p className="text-[11px] text-amber-700">Tunjukkan bukti pesanan saat tiba di lokasi merchant.</p>
                 </div>
               </div>
             </div>
           )}
 
+          {deliveryMethod === 'instant' && (
+            <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-[11px] text-blue-700 font-medium">
+              💡 Setelah diklik, sistem akan otomatis mengarahkan ke aplikasi GoSend / Ojol untuk jemput makanan.
+            </div>
+          )}
+
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 pt-1">
             <ShieldCheck size={14} className="text-emerald-500" />
-            <span>Transaksi Aman & Terverifikasi KASE Rescue</span>
+            <span>Transaksi Terverifikasi KASE Rescue</span>
           </div>
 
         </div>
 
-        {/* Footer Tombol Konfirmasi (Sticky di bawah, dijamin nampak) */}
+        {/* Footer Tombol Konfirmasi */}
         <div className="p-4 border-t border-gray-100 bg-gray-50/80 backdrop-blur shrink-0">
           <button
             onClick={handleVerifyPayment}
@@ -122,12 +136,14 @@ export default function PaymentInstructionModal({ food, portions, paymentMethod,
             {isVerifying ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                <span>Memverifikasi Pembayaran...</span>
+                <span>Memproses Pembayaran & Ojol...</span>
               </>
             ) : (
               <>
-                <CheckCircle2 size={16} />
-                <span>Saya Sudah Membayar / Konfirmasi</span>
+                {deliveryMethod === 'instant' ? <ExternalLink size={16} /> : <CheckCircle2 size={16} />}
+                <span>
+                  {deliveryMethod === 'instant' ? 'Bayar & Panggil Kurir GoSend' : 'Saya Sudah Membayar / Konfirmasi'}
+                </span>
               </>
             )}
           </button>
