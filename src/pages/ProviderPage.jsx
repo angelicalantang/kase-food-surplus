@@ -35,10 +35,13 @@ export default function ProviderPage({
   ]);
 
   const myStoreName = currentUser?.name ? `Toko ${currentUser.name}` : "Bakery & Resto Berkah";
-  const myFoodItems = foodItems;
 
-  const totalPortionsSold = orderHistory.reduce((acc, order) => acc + (order.portions || 1), 12);
-  const estimatedRevenue = orderHistory.reduce((acc, order) => acc + (order.totalPrice || 15000), 180000);
+  // SINKRONISASI: Filter makanan berdasarkan toko/provider yang sedang login (atau tampilkan semua jika belum spesifik)
+  const myFoodItems = foodItems; 
+
+  // SINKRONISASI: Hitung statistik dari orderHistory asli yang masuk secara real-time
+  const totalPortionsSold = orderHistory.reduce((acc, order) => acc + (order.portions || 1), 0);
+  const estimatedRevenue = orderHistory.reduce((acc, order) => acc + (order.totalPrice || 0), 0);
   const wastePrevented = (totalPortionsSold * 0.4).toFixed(1);
 
   const handleSavePortions = (id) => {
@@ -93,7 +96,7 @@ export default function ProviderPage({
               </span>
             </div>
             <p className="text-gray-300 text-xs sm:text-sm">
-              Kelola inventaris makanan berlebih, pantau pesanan live, dan atur keuangan tokomu.
+              Kelola inventaris makanan berlebih, pantau pesanan live dari pembeli, dan atur keuangan tokomu.
             </p>
           </div>
         </div>
@@ -109,7 +112,7 @@ export default function ProviderPage({
         </div>
       </div>
 
-      {/* 2. RINGKASAN STATISTIK UTAMA (QUICK STATS) */}
+      {/* 2. RINGKASAN STATISTIK UTAMA (QUICK STATS - Sinkron dengan Data Asli) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
@@ -180,7 +183,7 @@ export default function ProviderPage({
       {activeTab === 'inventory' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Kolom Kiri & Tengah: Daftar Makanan Aktif (2 Span) */}
+          {/* Kolom Kiri & Tengah: Daftar Makanan Aktif */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-black text-[#1E293B] flex items-center gap-2">
@@ -191,62 +194,68 @@ export default function ProviderPage({
             </div>
 
             <div className="space-y-4">
-              {myFoodItems.map((item) => (
-                <div key={item.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-2xl object-cover shadow-sm shrink-0" />
-                    <div>
-                      <h3 className="font-black text-[#1E293B] text-base">{item.name}</h3>
-                      <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                        <span className="text-emerald-600 font-bold">Rp {item.kasePrice.toLocaleString('id-ID')}</span>
-                        <span className="line-through text-gray-400">Rp {item.originalPrice.toLocaleString('id-ID')}</span>
-                        <span className="bg-gray-100 px-2 py-0.5 rounded-md font-semibold text-gray-600">Sisa: {item.portionsLeft} porsi</span>
+              {myFoodItems.length === 0 ? (
+                <div className="bg-white p-8 rounded-3xl text-center border border-gray-100 text-gray-400 text-xs">
+                  Belum ada menu surplus yang di-upload. Klik "+ Jual Surplus Baru" di atas untuk menambahkan!
+                </div>
+              ) : (
+                myFoodItems.map((item) => (
+                  <div key={item.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-4">
+                      <img src={item.image} alt={item.name} className="w-16 h-16 rounded-2xl object-cover shadow-sm shrink-0" />
+                      <div>
+                        <h3 className="font-black text-[#1E293B] text-base">{item.name}</h3>
+                        <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                          <span className="text-emerald-600 font-bold">Rp {item.kasePrice.toLocaleString('id-ID')}</span>
+                          <span className="line-through text-gray-400">Rp {item.originalPrice.toLocaleString('id-ID')}</span>
+                          <span className="bg-gray-100 px-2 py-0.5 rounded-md font-semibold text-gray-600">Sisa: {item.portionsLeft} porsi</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
-                    {editingId === item.id ? (
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="number" 
-                          value={tempPortions}
-                          onChange={(e) => setTempPortions(e.target.value)}
-                          className="w-16 px-2 py-1 border rounded-lg text-xs font-bold"
-                          placeholder="Porsi"
-                        />
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
+                      {editingId === item.id ? (
+                        <div className="flex items-center gap-2">
+                          <input 
+                            type="number" 
+                            value={tempPortions}
+                            onChange={(e) => setTempPortions(e.target.value)}
+                            className="w-16 px-2 py-1 border rounded-lg text-xs font-bold"
+                            placeholder="Porsi"
+                          />
+                          <button 
+                            onClick={() => handleSavePortions(item.id)}
+                            className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold cursor-pointer"
+                          >
+                            Simpan
+                          </button>
+                        </div>
+                      ) : (
                         <button 
-                          onClick={() => handleSavePortions(item.id)}
-                          className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold cursor-pointer"
+                          onClick={() => { setEditingId(item.id); setTempPortions(item.portionsLeft); }}
+                          className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-xl transition-colors text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                          title="Edit Porsi"
                         >
-                          Simpan
+                          <Edit3 size={15} />
+                          <span className="hidden sm:inline">Ubah Stok</span>
                         </button>
-                      </div>
-                    ) : (
-                      <button 
-                        onClick={() => { setEditingId(item.id); setTempPortions(item.portionsLeft); }}
-                        className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-xl transition-colors text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-                        title="Edit Porsi"
-                      >
-                        <Edit3 size={15} />
-                        <span className="hidden sm:inline">Ubah Stok</span>
-                      </button>
-                    )}
+                      )}
 
-                    <button 
-                      onClick={() => handleDeleteFood(item.id)}
-                      className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl transition-colors cursor-pointer"
-                      title="Hapus Makanan"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                      <button 
+                        onClick={() => onDeleteFood(item.id)}
+                        className="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl transition-colors cursor-pointer"
+                        title="Hapus Makanan"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
-          {/* Kolom Kanan: Pesanan Masuk (Live dari Customer) */}
+          {/* Kolom Kanan: Pesanan Masuk (Real-time dari orderHistory App.jsx) */}
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-black text-[#1E293B] flex items-center gap-2">
@@ -259,39 +268,45 @@ export default function ProviderPage({
             </div>
 
             <div className="space-y-4">
-              {orderHistory.map((order) => (
-                <div key={order.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] font-black bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md">
-                        {order.orderCode}
-                      </span>
-                      <h4 className="font-black text-sm text-[#1E293B] mt-1">{order.buyerName}</h4>
-                      <p className="text-xs text-gray-500">{order.foodName} ({order.portions} porsi)</p>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                      order.status === 'Pesanan Selesai' 
-                        ? 'bg-emerald-50 text-emerald-600' 
-                        : 'bg-amber-50 text-amber-600 animate-pulse'
-                    }`}>
-                      {order.status}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center pt-2 border-t border-gray-50 text-xs">
-                    <span className="text-gray-400">Rp {(order.totalPrice || 0).toLocaleString('id-ID')}</span>
-                    {order.status !== 'Pesanan Selesai' && onUpdateOrderStatus && (
-                      <button 
-                        onClick={() => onUpdateOrderStatus(order.id, 'Pesanan Selesai')}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer"
-                      >
-                        <CheckCircle size={14} />
-                        <span>Selesai Diambil</span>
-                      </button>
-                    )}
-                  </div>
+              {orderHistory.length === 0 ? (
+                <div className="bg-white p-6 rounded-3xl text-center border border-gray-100 text-gray-400 text-xs">
+                  Belum ada pesanan masuk. Coba lakukan *checkout* makanan dari mode pembeli!
                 </div>
-              ))}
+              ) : (
+                orderHistory.map((order) => (
+                  <div key={order.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] font-black bg-gray-100 text-gray-600 px-2 py-0.5 rounded-md">
+                          {order.orderCode}
+                        </span>
+                        <h4 className="font-black text-sm text-[#1E293B] mt-1">{order.buyerName}</h4>
+                        <p className="text-xs text-gray-500">{order.foodName} ({order.portions} porsi)</p>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        order.status === 'Pesanan Selesai' 
+                          ? 'bg-emerald-50 text-emerald-600' 
+                          : 'bg-amber-50 text-amber-600 animate-pulse'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-50 text-xs">
+                      <span className="text-gray-400">Rp {(order.totalPrice || 0).toLocaleString('id-ID')}</span>
+                      {order.status !== 'Pesanan Selesai' && onUpdateOrderStatus && (
+                        <button 
+                          onClick={() => onUpdateOrderStatus(order.id, 'Pesanan Selesai')}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+                        >
+                          <CheckCircle size={14} />
+                          <span>Selesai Diambil</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
 
               <div className="bg-amber-50 border border-amber-200 rounded-3xl p-4 flex items-start gap-3 text-xs text-amber-800">
                 <AlertCircle size={18} className="shrink-0 text-amber-600 mt-0.5" />
@@ -309,9 +324,7 @@ export default function ProviderPage({
       {activeTab === 'financial' && (
         <div className="space-y-8">
           
-          {/* Kartu Dompet Merchant */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
             <div className="bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded-3xl text-white shadow-lg space-y-4 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-emerald-100 text-xs font-bold mb-1">
@@ -348,10 +361,8 @@ export default function ProviderPage({
                 ✓ Rekening Utama: BCA •••• 8821
               </p>
             </div>
-
           </div>
 
-          {/* Riwayat Pencairan Dana */}
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-black text-[#1E293B] flex items-center gap-2">
