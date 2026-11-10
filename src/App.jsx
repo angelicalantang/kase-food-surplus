@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Store, UserCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 import { INITIAL_FOOD_ITEMS } from './data/foodData';
@@ -363,11 +363,33 @@ export default function App() {
         )}
       </main>
 
+      {/* Tombol Pintasan Cepat Switch Mode untuk Demo UTS */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setActiveTab(activeTab === 'provider' ? 'landing' : 'provider')}
+        className="fixed bottom-20 md:bottom-8 right-24 z-30 px-4 py-3 bg-emerald-600 text-white rounded-full flex items-center gap-2 shadow-xl hover:bg-emerald-700 transition-all font-bold text-xs border border-white/20 cursor-pointer"
+        title="Beralih Mode Merchant / Pembeli"
+      >
+        {activeTab === 'provider' ? (
+          <>
+            <UserCheck size={16} />
+            <span>Ke Mode Pembeli</span>
+          </>
+        ) : (
+          <>
+            <Store size={16} />
+            <span>Dashboard Merchant</span>
+          </>
+        )}
+      </motion.button>
+
+      {/* Tombol Navigasi Cepat Discover */}
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setActiveTab('discover')}
-        className="fixed bottom-20 md:bottom-8 right-6 z-30 w-14 h-14 bg-kaseDark text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all border border-white/20 group"
+        className="fixed bottom-20 md:bottom-8 right-6 z-30 w-14 h-14 bg-kaseDark text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all border border-white/20 group cursor-pointer"
         title="Jelajahi Makanan"
       >
         <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform text-kaseAmber" />
@@ -422,7 +444,6 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-
 
       <Footer />
     </div>
